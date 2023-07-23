@@ -33,22 +33,27 @@ def main():
         else:
             st.error("Product not found or error fetching stock level.")
 
-# Function to fetch stock level from Jumia API
 def get_stock_level(product_info):
     headers = {"Authorization": f"Bearer {API_KEY}"}
     params = {"product_info": product_info}
 
     try:
         response = requests.get(BASE_URL + "stock-level", headers=headers, params=params)
+        response.raise_for_status()  # Raise an exception for bad responses (4xx or 5xx)
 
-        if response.status_code == 200:
-            data = response.json()
-            return data["stock_level"]
-        else:
-            return None
+        data = response.json()
+        return data["stock_level"]
 
     except requests.exceptions.RequestException as e:
-        st.error(f"Error fetching stock level: {e}")
+        st.error(f"Error making the request: {e}")
+        return None
+
+    except requests.exceptions.HTTPError as e:
+        st.error(f"HTTP error occurred: {e.response.status_code} - {e.response.text}")
+        return None
+
+    except Exception as e:
+        st.error(f"An unexpected error occurred: {e}")
         return None
 
 if __name__ == "__main__":
