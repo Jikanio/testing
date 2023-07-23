@@ -4,14 +4,7 @@
 # In[2]:
 
 
-pip install streamlit requests
-
-
-# In[3]:
-
-
 import streamlit as st
-import requests
 
 
 # In[5]:
