@@ -1,19 +1,10 @@
 import streamlit as st
 import pandas as pd
 import requests
-import PyPDF2
 import openai
 
 # Set your OpenAI API key here
 openai.api_key = 'YOUR_OPENAI_API_KEY'
-
-def read_pdf(file):
-    text = ""
-    pdf_reader = PyPDF2.PdfFileReader(file)
-    for page_num in range(pdf_reader.numPages):
-        page = pdf_reader.getPage(page_num)
-        text += page.extractText()
-    return text
 
 def read_excel(file):
     df = pd.read_excel(file)
@@ -25,23 +16,22 @@ def read_web_link(url):
 
 def main():
     st.title("Upload and Read Documents")
-    st.write("Please upload a PDF, Excel file, or provide a web link.")
+    st.write("Please upload an Excel file or provide a web link.")
 
-    file = st.file_uploader("Upload a file", type=["pdf", "xlsx"])
+    file = st.file_uploader("Upload an Excel file", type=["xlsx"])
 
     if file:
-        file_type = file.type
-        if file_type == 'application/pdf':
-            text = read_pdf(file)
-        elif file_type == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
-            text = read_excel(file)
-        else:
-            st.error("Unsupported file format.")
-            return
-
+        text = read_excel(file)
         st.subheader("Uploaded Document Text:")
         st.write(text)
 
+    web_link = st.text_input("Provide a web link:")
+    if web_link:
+        text = read_web_link(web_link)
+        st.subheader("Web Link Text:")
+        st.write(text)
+
+    if file or web_link:
         user_input = st.text_input("Ask a question or provide a prompt:")
         if user_input:
             response = openai.Completion.create(
